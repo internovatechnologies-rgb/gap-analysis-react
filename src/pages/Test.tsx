@@ -139,7 +139,7 @@ function TestPageContent() {
                 {domain.questions.map((q) => (
                   <div key={q.id} className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-100 pb-4 md:pb-6 last:border-0 gap-4 md:gap-0">
                     <p className="text-gray-800 text-sm md:text-base max-w-3xl">{q.id}. {q.text}</p>
-                    <div className="flex gap-3 w-1/2 md:w-full md:w-auto">
+                    <div className="flex gap-3 w-1/2 lg:w-full justify-end">
                       <button
                         onClick={() => handleAnswer(q.id, true)}
                         className={`flex-1 md:flex-none px-6 py-2 rounded border transition-colors ${answers[q.id] === true
@@ -170,9 +170,9 @@ function TestPageContent() {
             <h3 className="text-[#4E27F0] font-bold tracking-wider uppercase mb-4 md:mb-6 text-xs md:text-sm">
               OPTIONAL
             </h3>
-            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-100 pb-4 md:pb-6 gap-4 md:gap-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b w-full border-gray-100 pb-4 md:pb-6 gap-4 md:gap-0">
               <p className="text-gray-800 text-sm md:text-base max-w-3xl">{optionalQuestion.id}. {optionalQuestion.text}</p>
-              <div className="flex gap-3 w-1/2 md:w-full md:w-auto">
+              <div className="flex gap-3 w-1/2 lg:w-full justify-end">
                 <button
                   onClick={() => handleAnswer(optionalQuestion.id, true)}
                   className={`flex-1 md:flex-none px-6 py-2 rounded border transition-colors ${answers[optionalQuestion.id] === true
