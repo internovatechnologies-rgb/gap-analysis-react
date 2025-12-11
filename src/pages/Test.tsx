@@ -31,32 +31,34 @@ const domains: Domain[] = [
     questions: [
       { id: 5, text: 'Do you monitor state-level changes relevant to your programs?' },
       { id: 6, text: 'Do you have a process to implement new regulations within 30 days?' },
-      { id: 7, text: 'Have you had any findings or citations in the past 24 months?' },
+      { id: 7, text: 'Have you avoided findings or citations in the past 24 months?' },
+      { id: 8, text: 'Do you keep a written log of regulatory updates and the actions taken in response?' },
     ],
   },
   {
     id: 'domain-3',
     title: 'DOMAIN 3: OPERATIONAL PROCESSES',
     questions: [
-      { id: 8, text: 'Do all staff complete required annual trainings?' },
-      { id: 9, text: 'Do you maintain required incident reporting and corrective action documentation?' },
-      { id: 10, text: 'Do you have a formal audit or review every year?' },
+      { id: 9, text: 'Do all staff complete required annual trainings?' },
+      { id: 10, text: 'Do you maintain required incident reporting and corrective action documentation?' },
+      { id: 11, text: 'Do you have a formal internal audit or review every year?' },
+      { id: 12, text: 'Do you have a documented schedule for reviewing incidents, trends, and corrective actions? (for example, monthly or quarterly)' },
     ],
   },
   {
     id: 'domain-4',
     title: 'DOMAIN 4: ACCREDITATION READINESS',
     questions: [
-      { id: 11, text: 'Are your policies aligned to your accrediting body\'s latest standards?' },
-      { id: 12, text: 'Can you produce required documents within 24 hours if requested?' },
-      { id: 13, text: 'Did you have gaps during your last review or mock assessment?' },
-      { id: 14, text: 'Do you have a central, organized repository for compliance documents?' },
+      { id: 13, text: 'Are your policies aligned to your accrediting body\'s latest standards?' },
+      { id: 14, text: 'Can you produce required documents within 24 hours if requested?' },
+      { id: 15, text: 'Were no significant gaps found during your last review or mock assessment?' },
+      { id: 16, text: 'Do you have a central, organized repository for compliance documents?' },
     ],
   },
 ];
 
 const optionalQuestion = {
-  id: 15,
+  id: 17,
   text: 'Are key program handbooks (client rights, privacy, emergency procedures) up-to-date?',
 };
 
@@ -113,7 +115,7 @@ function TestPageContent() {
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <main className="flex-1 max-w-5xl w-full mx-auto md:p-12">
+        <main className="flex-1 w-full mx-auto">
           <ResultView score={calculateScore()} answers={answers} />
         </main>
       </div>
