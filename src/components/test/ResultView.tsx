@@ -25,6 +25,7 @@ interface DomainDetailContent {
 interface QuestionFeedback {
   strengthText: string;
   weaknessText: string;
+  impactTags: ('audit_risk' | 'financial' | 'time_effort')[];
 }
 
 const questionFeedback: Record<number, QuestionFeedback> = {
@@ -32,75 +33,135 @@ const questionFeedback: Record<number, QuestionFeedback> = {
   1: {
     strengthText: "You have a full, current policy set for all service lines.",
     weaknessText: "Some service lines are missing policies or still use outdated versions.",
+    impactTags: ["audit_risk", "financial"],
   },
   2: {
     strengthText: "Your policies have been reviewed and updated within the past 12 months.",
     weaknessText: "Many policies have not been reviewed or updated in over 12 months.",
+    impactTags: ["audit_risk", "financial"],
   },
   3: {
     strengthText: "You track policy versions clearly, with dates and history.",
     weaknessText: "Policy versions are not tracked in a formal, consistent way.",
+    impactTags: ["audit_risk", "time_effort"],
   },
   4: {
     strengthText: "Staff acknowledgements provide proof that policies are communicated and understood.",
     weaknessText: "Staff acknowledgements are not consistently recorded when policies change.",
+    impactTags: ["audit_risk", "time_effort"],
   },
   // Domain 2: Regulatory Tracking
   5: {
     strengthText: "Someone routinely monitors state-level regulatory changes that affect your programs.",
     weaknessText: "State-level regulatory changes may not be tracked or reviewed regularly.",
+    impactTags: ["audit_risk", "financial"],
   },
   6: {
     strengthText: "You have a defined process to implement new regulations within 30 days.",
     weaknessText: "There is no clear, time-bound process to implement new regulations.",
+    impactTags: ["audit_risk", "time_effort"],
   },
   7: {
     strengthText: "You have had no findings or citations in the past 24 months.",
     weaknessText: "Recent findings or citations point to areas that still need monitoring.",
+    impactTags: ["audit_risk", "financial"],
   },
   8: {
     strengthText: "You maintain a written log of regulatory updates and how your programs responded.",
     weaknessText: "Regulatory updates and your responses are not tracked in a single, written log.",
+    impactTags: ["audit_risk", "time_effort"],
   },
   // Domain 3: Operational Processes
   9: {
     strengthText: "Required annual trainings are consistently completed and documented.",
     weaknessText: "Some staff are missing required annual trainings or documentation is incomplete.",
+    impactTags: ["audit_risk", "financial"],
   },
   10: {
     strengthText: "Incidents and corrective actions are documented in a consistent format.",
     weaknessText: "Incident and corrective action documentation is incomplete or not stored centrally.",
+    impactTags: ["audit_risk", "financial", "time_effort"],
   },
   11: {
     strengthText: "You conduct a structured internal audit or review at least once a year.",
     weaknessText: "There is no routine internal audit or review cycle.",
+    impactTags: ["audit_risk", "financial"],
   },
   12: {
     strengthText: "You follow a documented schedule to review incidents, trends, and corrective actions.",
     weaknessText: "There is no clear schedule for reviewing incidents, trends, and corrective actions.",
+    impactTags: ["audit_risk", "time_effort", "financial"],
   },
   // Domain 4: Accreditation Readiness
   13: {
     strengthText: "Policies are intentionally aligned with your current accrediting standards.",
     weaknessText: "Policy language has not been mapped directly to current accrediting standards.",
+    impactTags: ["audit_risk", "financial"],
   },
   14: {
     strengthText: "You can retrieve required documents within 24 hours when requested.",
     weaknessText: "Retrieving required documents within 24 hours would be difficult or highly manual.",
+    impactTags: ["audit_risk", "time_effort"],
   },
   15: {
     strengthText: "Your last review or mock assessment did not identify significant gaps.",
     weaknessText: "Recent reviews identified gaps that may still need follow-up.",
+    impactTags: ["audit_risk", "financial"],
   },
   16: {
     strengthText: "Compliance documents are stored in a central, organized repository.",
     weaknessText: "Compliance documents are stored in multiple locations and are hard to retrieve quickly.",
+    impactTags: ["audit_risk", "time_effort"],
   },
   // Optional Question
   17: {
     strengthText: "Client rights, privacy, and emergency handbooks are current and consistent with your policies.",
     weaknessText: "Client rights, privacy, and emergency handbooks may be outdated or inconsistent with your policies.",
+    impactTags: [],
   },
+};
+
+// Impact risk level types
+type ImpactRiskLevel = 'Low' | 'Moderate' | 'High';
+
+// Calculate impact scores from answers
+const calculateImpactScores = (answers: Record<number, boolean | null>) => {
+  let auditRisk = 0;
+  let financial = 0;
+  let timeEffort = 0;
+
+  // Only count questions 1-16 (not optional Q17)
+  for (let id = 1; id <= 16; id++) {
+    if (answers[id] === true) {
+      const feedback = questionFeedback[id];
+      if (feedback) {
+        if (feedback.impactTags.includes('audit_risk')) auditRisk++;
+        if (feedback.impactTags.includes('financial')) financial++;
+        if (feedback.impactTags.includes('time_effort')) timeEffort++;
+      }
+    }
+  }
+
+  return { auditRisk, financial, timeEffort };
+};
+
+// Get risk level for each impact category
+const getAuditRiskLevel = (score: number): ImpactRiskLevel => {
+  if (score >= 13) return 'Low';
+  if (score >= 10) return 'Moderate';
+  return 'High';
+};
+
+const getFinancialRiskLevel = (score: number): ImpactRiskLevel => {
+  if (score >= 8) return 'Low';
+  if (score >= 6) return 'Moderate';
+  return 'High';
+};
+
+const getTimeEffortRiskLevel = (score: number): ImpactRiskLevel => {
+  if (score >= 7) return 'Low';
+  if (score >= 5) return 'Moderate';
+  return 'High';
 };
 
 const domainFeedback: Record<string, DomainFeedback> = {
@@ -201,92 +262,42 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
     operationalProcesses: getScoreLevel(domainScores.operationalProcesses, domainQuestions.operationalProcesses.length),
     accreditationReadiness: getScoreLevel(domainScores.accreditationReadiness, domainQuestions.accreditationReadiness.length),
   };
+
+  // Calculate impact scores
+  const impactScores = calculateImpactScores(answers);
+  const impactLevels = {
+    auditRisk: getAuditRiskLevel(impactScores.auditRisk),
+    financial: getFinancialRiskLevel(impactScores.financial),
+    timeEffort: getTimeEffortRiskLevel(impactScores.timeEffort),
+  };
+
   // Determine Risk Tier
   let riskTier = 'High Risk';
-  let riskDescription = 'Significant vulnerabilities, recommend urgent remediation';
   let riskColor = 'text-red-600';
   let bg = '#FF0000';
   let riskBg = 'bg-red-50';
-  let borderColor = 'border-red-200';
-  let iconColor = 'bg-red-500';
   let message = "Your document needs to be analyzed!";
   let detailedMessage = "Immediate attention is required. Significant gaps put your accreditation at risk.";
-  let themeColor = 'red';
 
   if (score >= 12) {
     riskTier = 'Low Risk';
-    riskDescription = 'Strong documentation and processes';
     riskColor = 'text-green-600';
     bg = 'bg-[#46BB66]';
     riskBg = 'bg-green-50';
-    borderColor = 'border-green-200';
-    iconColor = 'bg-green-500';
     message = "Congratulations! Your score is " + score;
     detailedMessage = "You're in a good place. Your answers show strong compliance practices with only a few areas to tighten.";
-    themeColor = 'green';
   } else if (score >= 7) {
     riskTier = 'Moderate Risk';
-    riskDescription = 'Gaps that need attention within 60 days';
     riskColor = 'text-orange-600';
     bg = 'bg-[#ED933F]';
     riskBg = 'bg-[#FFF2E5]';
-    borderColor = 'border-orange-200';
-    iconColor = 'bg-orange-500';
     message = "Gaps detected. Your risk is moderate.";
     detailedMessage = "You have a foundation, but gaps exist. Your answers show potential blind spots.";
-    themeColor = 'orange';
   }
-
-  // Content Configuration
-  const content = {
-    'Low Risk': {
-      strengths: [
-        "You don’t panic. When an auditor asks for a document, you know exactly where it is (Q14) and can produce it instantly (Q12).",
-        "Your team is in the loop.You aren’t just writing rules; your staff actually signs off on them(Q4), protecting you from liability."
-      ],
-      weaknesses: [
-        "Your system likely depends heavily on one superstar compliance lead (Q6). If they leave, does the system fall apart?",
-        "Keeping 100 % of policies updated annually(Q2) requires massive manual effort.You are safe, but you are likely inefficient."
-      ],
-      impacts: [
-        "Market Advantage: Your facility is positioned as a trusted leader. By maintaining this level of readiness, you minimize audit preparation time and eliminate the risk of 'clawbacks' (paying back money to insurers)."
-      ]
-    },
-    'Moderate Risk': {
-      strengths: [
-        "You're operationally sound. Your doors are open and staff are trained (Q8). You handle incidents well when they happen (Q9).",
-        "You have a starting point. You aren't starting from zero; you have a handbook and core policies (Q1), even if they are a bit dusty."
-      ],
-      weaknesses: [
-        "You might tell staff about changes, but without formal sign-offs (Q4), you can't prove it in court.",
-        "Without a central repository (Q14), retrieving documents takes days, not hours. This makes auditors suspicious immediately.",
-        "You have policies, but if they haven't been updated in 12+ months (Q2), you are technically out of compliance with current standards."
-      ],
-      impacts: [
-        "You are walking a fine line. While you may not fail outright, you are at high risk for Conditional Accreditation, which limits your growth and triggers mandatory follow-up surveys. Small gaps now often turn into costly delays during reaccreditation."
-      ]
-    },
-    'High Risk': {
-      strengths: [
-        "You are focused entirely on client care. Your 'Incident Reporting' (Q9) is likely the only compliance muscle you exercise regularly."
-      ],
-      weaknesses: [
-        "You are guessing. Without a compliance officer (Q5) or state monitoring (Q5), you don't actually know what the current rules are.",
-        "Zero Defense. If a claim is challenged, you have no updated policies (Q2) or staff acknowledgments (Q4) to defend your billing.",
-        "You admitted you can't produce docs within 24 hours (Q12). In an audit, hesitation equals failure."
-      ],
-      impacts: [
-        "Your license and revenue are exposed. Operating at this level invites financial recoupment (paying back billed claims), immediate citations, and potential revocation of your accreditation. One surprise inspection could shut down your admissions."
-      ]
-    }
-  };
-
-  const currentContent = content[riskTier as keyof typeof content];
 
   // Domain Detail View
   if (selectedDomain) {
     const domainLevel = domainLevels[selectedDomain as keyof typeof domainLevels];
-    const domainInfo = domainFeedback[selectedDomain as keyof typeof domainFeedback];
     const domainQuestionIds = domainQuestions[selectedDomain as keyof typeof domainQuestions];
     const domainContent = getDomainDetailFromAnswers(domainQuestionIds, answers);
 
@@ -509,15 +520,31 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
             </div>
 
             <div className="border border-[#F2F2F2] rounded-xl p-6">
-              <h3 className="text-blue-700 font-bold mb-4">Impacts</h3>
-              <ul className="space-y-3">
-                {currentContent.impacts.map((item, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                    <span className="text-blue-500 mt-1">•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+              <h3 className="text-blue-700 font-bold mb-4">Impact Summary</h3>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-700">Audit and Accreditation Risk - </span>
+
+
+                  <span className={`ml-1 text-sm text-gray-700`}>
+                    {impactLevels.auditRisk}
+                  </span>
+
+                </div>
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-700">Staff Time and Effort - </span>{""}
+                  <span className={`ml-1 text-sm text-gray-700`}>
+                    {impactLevels.timeEffort}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-700">Financial Exposure - </span>
+
+                  <span className={`ml-1 text-sm text-gray-700`}>
+                    {impactLevels.financial}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Next Steps */}
