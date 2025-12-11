@@ -376,7 +376,7 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
             <div className="pt-6 border-t border-gray-100">
               <h3 className="font-bold text-gray-900 mb-2">Next Steps</h3>
               <p className="text-sm text-gray-600 mb-6">
-                We'd also love to hop on a quick call and show you exactly how to tighten your policies for CARF and DBH compliance.
+                Schedule a call with us today and find out how your policy update timelines go from weeks to just a few days.
               </p>
               <p className="text-xs text-gray-500 italic mb-6">
                 Click on our Calendly link and let us know a convenient time for you. Looking forward to helping you get audit-ready!
