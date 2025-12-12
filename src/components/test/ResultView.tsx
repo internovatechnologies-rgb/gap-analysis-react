@@ -284,7 +284,7 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
     riskColor = 'text-green-600';
     bg = 'bg-[#46BB66]';
     riskBg = 'bg-green-50';
-    message = "Congratulations! Your score is " + score;
+    message = "Congratulations!";
     detailedMessage = "You're in a good place. Your answers show strong compliance practices with only a few areas to tighten.";
   } else if (score >= 7) {
     riskTier = 'Moderate Risk';
@@ -295,11 +295,105 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
     detailedMessage = "You have a foundation, but gaps exist. Your answers show potential blind spots.";
   }
 
+  // Domain Impact and Action based on score
+  const domainImpactAction: Record<string, Record<number, { impact: string; action: string }>> = {
+    documentation: {
+      0: {
+        impact: "Documentation is almost non-existent or unusably outdated, creating a high likelihood of basic findings and confusion for staff.",
+        action: "Start a full documentation rebuild, beginning with core policies for each service line and bringing them up to current standards."
+      },
+      1: {
+        impact: "You have fragments of documentation, but important areas are missing or very old, so surveyors will struggle to see a complete picture.",
+        action: "Identify missing or outdated policies and create a focused plan to draft or update them in the next 30–60 days."
+      },
+      2: {
+        impact: "Some key policies exist, but reviews, version control, or staff acknowledgements are inconsistent, which still leaves room for citations.",
+        action: "Complete your policy set and put simple review, versioning, and acknowledgement steps in place for each update."
+      },
+      3: {
+        impact: "Most documentation is in good shape, but a few gaps or loose controls can create avoidable questions during audits.",
+        action: "Tighten the last few weak spots by standardising how you review, update, and communicate policy changes."
+      },
+      4: {
+        impact: "Your policies are complete, current, and well controlled, giving you a strong base for all other compliance work.",
+        action: "Maintain this level by running an occasional sample policy review to ensure documents still match day to day practice."
+      }
+    },
+    regulatoryTracking: {
+      0: {
+        impact: "There is essentially no formal process for tracking or implementing regulatory changes, which is a direct risk to licensing and accreditation.",
+        action: "Assign a named person and create a basic monthly routine for checking state updates and logging required changes."
+      },
+      1: {
+        impact: "Regulatory changes are noticed occasionally, but there is no consistent way to capture or act on them, so requirements can be missed.",
+        action: "Set up a simple checklist and log where every new rule is recorded, reviewed, and given a clear due date for action."
+      },
+      2: {
+        impact: "You are aware of some regulatory changes and make ad hoc updates, but the process is uneven and often reactive.",
+        action: "Define a clear workflow for reviewing new rules, deciding impacts, and confirming completion within a set timeframe."
+      },
+      3: {
+        impact: "Most important changes are tracked and implemented, yet the process is not fully documented or regularly reviewed.",
+        action: "Formalise your regulatory review schedule and keep one central log of updates, decisions, and follow up actions."
+      },
+      4: {
+        impact: "Regulatory changes are consistently monitored, documented, and implemented, showing strong alignment with current rules.",
+        action: "Keep your log current and review it before major surveys to demonstrate a clear history of staying up to date."
+      }
+    },
+    operationalProcesses: {
+      0: {
+        impact: "Trainings, incidents, and internal reviews are largely undocumented or not happening, raising serious concerns about safety and quality.",
+        action: "Put a basic structure in place to track mandatory trainings, incident reports, and follow up actions in one central location."
+      },
+      1: {
+        impact: "Some operational activity is occurring, but gaps in training, incident documentation, or reviews make it hard to show reliable practice.",
+        action: "Standardise how you record trainings and incidents and make sure every event is logged with clear follow up."
+      },
+      2: {
+        impact: "Many core processes are running, yet documentation and follow through are inconsistent, leading to extra work before audits.",
+        action: "Close the most obvious gaps by ensuring all staff complete required trainings and all incidents follow the same documentation flow."
+      },
+      3: {
+        impact: "Operations generally support safe practice, but a few weak points in documentation or review cycles may still draw questions.",
+        action: "Lock in a recurring review meeting for trainings, incidents, and corrective actions and document decisions from each session."
+      },
+      4: {
+        impact: "Trainings, incidents, corrective actions, and internal reviews are consistently managed, giving strong evidence of a well run service.",
+        action: "Use your data from these processes to show trends and improvements over time, especially in preparation for surveys."
+      }
+    },
+    accreditationReadiness: {
+      0: {
+        impact: "You are likely to struggle in a survey because documents are scattered, gaps from past reviews may be unresolved, and standards are not clearly mapped.",
+        action: "Gather essential accreditation documents into a central repository and map each one to the relevant standards as a first step."
+      },
+      1: {
+        impact: "You can show some pieces of evidence, but retrieval is slow and follow up on previous gaps is unclear, increasing the risk of repeat findings.",
+        action: "Organise your key accreditation documents into a single structure and document progress on closing previous findings."
+      },
+      2: {
+        impact: "You can usually respond to survey requests, but the process is stressful and depends on manual effort and a few key people.",
+        action: "Standardise where you store survey documents and run a small 'mock pull' to find and fix bottlenecks in retrieval."
+      },
+      3: {
+        impact: "You are mostly survey ready, though a few gaps in retrieval speed or tracking of earlier findings can still be improved.",
+        action: "Test your readiness by simulating common survey requests and tightening any slow or unclear areas before the next review."
+      },
+      4: {
+        impact: "Policies are mapped to standards, documents are easy to retrieve, and past gaps are addressed, giving you a confident survey posture.",
+        action: "Maintain a short accreditation readiness checklist and review it before each external visit to keep this level of performance."
+      }
+    }
+  };
+
   // Domain Detail View
   if (selectedDomain) {
     const domainLevel = domainLevels[selectedDomain as keyof typeof domainLevels];
     const domainQuestionIds = domainQuestions[selectedDomain as keyof typeof domainQuestions];
     const domainContent = getDomainDetailFromAnswers(domainQuestionIds, answers);
+    const domainScore = domainScores[selectedDomain as keyof typeof domainScores];
+    const impactActionData = domainImpactAction[selectedDomain]?.[domainScore];
 
     const levelColors = {
       weak: {
@@ -338,10 +432,10 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
               Back to Results
             </button>
 
-            {/* Strengths */}
-            <div className="bg-green-50 border border-green-100 rounded-xl p-6 mb-4">
-              <h3 className="text-green-700 font-bold mb-4">Strengths</h3>
-              {domainContent.strengths.length > 0 ? (
+            {/* Strengths - only show if there are strengths */}
+            {domainContent.strengths.length > 0 && (
+              <div className="bg-green-50 border border-green-100 rounded-xl p-6 mb-4">
+                <h3 className="text-green-700 font-bold mb-4">Strengths</h3>
                 <ul className="space-y-3">
                   {domainContent.strengths.map((item, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
@@ -350,15 +444,13 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p className="text-sm text-gray-500 italic">No strengths identified in this domain based on your answers.</p>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Weaknesses */}
-            <div className="bg-red-50 border border-red-100 rounded-xl p-6 mb-6">
-              <h3 className="text-red-700 font-bold mb-4">Weaknesses</h3>
-              {domainContent.weaknesses.length > 0 ? (
+            {/* Weaknesses - only show if there are weaknesses */}
+            {domainContent.weaknesses.length > 0 && (
+              <div className="bg-red-50 border border-red-100 rounded-xl p-6 mb-4">
+                <h3 className="text-red-700 font-bold mb-4">Weaknesses</h3>
                 <ul className="space-y-3">
                   {domainContent.weaknesses.map((item, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
@@ -367,10 +459,25 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
                     </li>
                   ))}
                 </ul>
-              ) : (
-                <p className="text-sm text-gray-500 italic">No weaknesses identified in this domain based on your answers.</p>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Impact & Action Section */}
+            {impactActionData && (
+              <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 mb-6">
+                <h3 className="text-blue-700 font-bold mb-4">Impact & Action</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-800 mb-1">Impact</h4>
+                    <p className="text-sm text-gray-700">{impactActionData.impact}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-800 mb-1">Action</h4>
+                    <p className="text-sm text-gray-700">{impactActionData.action}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Next Steps */}
             <div className="pt-6 border-t border-gray-100">
@@ -428,7 +535,7 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
 
             </div>
             <span className={`text-sm font-semibold rounded-full w-fit`}>
-              Status:{score}/16
+              Status:{score}/17
             </span>
             {/* Illustration Placeholder */}
             <img
@@ -550,10 +657,10 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
             {/* Next Steps */}
             <div className="pt-2 border-t border-gray-100">
               <h3 className="font-bold text-gray-900 mb-2">Next Steps</h3>
-              <p className="text-sm text-gray-600 mb-6">
-                We'd also love to hop on a quick call and show you exactly how to tighten your policies for CARF and DBH compliance.
+              <p className="text-base text-gray-600 mb-6">
+                Schedule a call with us today and find out how your policy update timelines go from weeks to just a few days.
               </p>
-              <p className="text-xs text-gray-500 italic mb-6">
+              <p className="text-sm text-gray-500 italic mb-6">
                 Click on our Calendly link and let us know a convenient time for you. Looking forward to helping you get audit-ready!
               </p>
 
