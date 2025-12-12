@@ -107,7 +107,7 @@ function TestPageContent() {
     }
 
     // If validation passes, proceed with submission
-    // const score = calculateScore(); // Not used here
+    // const score = calculateScore();
     navigate('/test?view=result');
     setIsSubmitted(true);
   };
