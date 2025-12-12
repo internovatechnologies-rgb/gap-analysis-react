@@ -295,94 +295,94 @@ const ResultView = ({ score, answers }: ResultViewProps) => {
     detailedMessage = "You have a foundation, but gaps exist. Your answers show potential blind spots.";
   }
 
-  // Domain Impact and Action based on score
+  // Domain Impact and Action based on score (deal-breaker aware)
   const domainImpactAction: Record<string, Record<number, { impact: string; action: string }>> = {
     documentation: {
       0: {
-        impact: "Documentation is almost non-existent or unusably outdated, creating a high likelihood of basic findings and confusion for staff.",
-        action: "Start a full documentation rebuild, beginning with core policies for each service line and bringing them up to current standards."
+        impact: "Core documentation is missing or unusably outdated. This is a baseline compliance failure and almost always leads to immediate findings and staff confusion.",
+        action: "Start a full documentation rebuild, beginning with core policies for each service line and bringing them up to current standards before addressing secondary controls."
       },
       1: {
-        impact: "You have fragments of documentation, but important areas are missing or very old, so surveyors will struggle to see a complete picture.",
-        action: "Identify missing or outdated policies and create a focused plan to draft or update them in the next 30–60 days."
+        impact: "Core documentation is missing or unusably outdated. This is a baseline compliance failure and almost always leads to immediate findings and staff confusion.",
+        action: "Start a full documentation rebuild, beginning with core policies for each service line and bringing them up to current standards before addressing secondary controls."
       },
       2: {
-        impact: "Some key policies exist, but reviews, version control, or staff acknowledgements are inconsistent, which still leaves room for citations.",
-        action: "Complete your policy set and put simple review, versioning, and acknowledgement steps in place for each update."
+        impact: "Some key policies exist, but missing service lines, outdated content, or lack of acknowledgement still expose you to citations during routine reviews.",
+        action: "Complete the missing policies first, then add simple review, version control, and staff acknowledgement steps to stabilise the system."
       },
       3: {
-        impact: "Most documentation is in good shape, but a few gaps or loose controls can create avoidable questions during audits.",
-        action: "Tighten the last few weak spots by standardising how you review, update, and communicate policy changes."
+        impact: "Most documentation is in good shape, but at least one critical documentation requirement is missing. Auditors often treat this as a finding regardless of other strengths.",
+        action: "Fix the critical gap first, then standardise how policies are reviewed, versioned, and communicated so the system holds up under scrutiny."
       },
       4: {
-        impact: "Your policies are complete, current, and well controlled, giving you a strong base for all other compliance work.",
-        action: "Maintain this level by running an occasional sample policy review to ensure documents still match day to day practice."
+        impact: "Policies are complete, current, and well controlled, providing a strong foundation for all other compliance work.",
+        action: "Maintain this level by running occasional sample policy reviews to confirm documents still reflect day-to-day practice."
       }
     },
     regulatoryTracking: {
       0: {
-        impact: "There is essentially no formal process for tracking or implementing regulatory changes, which is a direct risk to licensing and accreditation.",
-        action: "Assign a named person and create a basic monthly routine for checking state updates and logging required changes."
+        impact: "There is no reliable way to track or implement regulatory changes. This is a direct licensing and accreditation risk and frequently leads to repeat findings.",
+        action: "Assign clear ownership and establish a basic, documented routine for monitoring state updates and logging required changes."
       },
       1: {
-        impact: "Regulatory changes are noticed occasionally, but there is no consistent way to capture or act on them, so requirements can be missed.",
-        action: "Set up a simple checklist and log where every new rule is recorded, reviewed, and given a clear due date for action."
+        impact: "There is no reliable way to track or implement regulatory changes. This is a direct licensing and accreditation risk and frequently leads to repeat findings.",
+        action: "Assign clear ownership and establish a basic, documented routine for monitoring state updates and logging required changes."
       },
       2: {
-        impact: "You are aware of some regulatory changes and make ad hoc updates, but the process is uneven and often reactive.",
-        action: "Define a clear workflow for reviewing new rules, deciding impacts, and confirming completion within a set timeframe."
+        impact: "Some regulatory changes are noticed, but gaps in tracking or implementation mean requirements can be missed without warning.",
+        action: "Create a simple workflow that records each update, assigns responsibility, and confirms implementation within a defined timeframe."
       },
       3: {
-        impact: "Most important changes are tracked and implemented, yet the process is not fully documented or regularly reviewed.",
-        action: "Formalise your regulatory review schedule and keep one central log of updates, decisions, and follow up actions."
+        impact: "Most regulatory changes are handled, but a missing log or recent citation signals elevated risk. Auditors often focus on these gaps even when other controls are strong.",
+        action: "Formalise your tracking process and centralise the regulatory log so you can clearly show how changes are identified and acted on."
       },
       4: {
         impact: "Regulatory changes are consistently monitored, documented, and implemented, showing strong alignment with current rules.",
-        action: "Keep your log current and review it before major surveys to demonstrate a clear history of staying up to date."
+        action: "Keep the log current and review it before surveys to demonstrate a clear history of staying compliant."
       }
     },
     operationalProcesses: {
       0: {
-        impact: "Trainings, incidents, and internal reviews are largely undocumented or not happening, raising serious concerns about safety and quality.",
-        action: "Put a basic structure in place to track mandatory trainings, incident reports, and follow up actions in one central location."
+        impact: "Trainings, incidents, or corrective actions are missing or undocumented. Auditors view this as a serious safety and quality concern.",
+        action: "Put a basic structure in place immediately to track mandatory trainings, incident reports, and follow-up actions in one location."
       },
       1: {
-        impact: "Some operational activity is occurring, but gaps in training, incident documentation, or reviews make it hard to show reliable practice.",
-        action: "Standardise how you record trainings and incidents and make sure every event is logged with clear follow up."
+        impact: "Trainings, incidents, or corrective actions are missing or undocumented. Auditors view this as a serious safety and quality concern.",
+        action: "Put a basic structure in place immediately to track mandatory trainings, incident reports, and follow-up actions in one location."
       },
       2: {
-        impact: "Many core processes are running, yet documentation and follow through are inconsistent, leading to extra work before audits.",
-        action: "Close the most obvious gaps by ensuring all staff complete required trainings and all incidents follow the same documentation flow."
+        impact: "Operational activities are happening, but inconsistent documentation weakens your ability to prove safe and reliable practice.",
+        action: "Standardise how trainings and incidents are recorded and ensure every event has documented follow-up."
       },
       3: {
-        impact: "Operations generally support safe practice, but a few weak points in documentation or review cycles may still draw questions.",
-        action: "Lock in a recurring review meeting for trainings, incidents, and corrective actions and document decisions from each session."
+        impact: "Operations generally support safe practice, but a missing training record or incident trail can outweigh other strengths during audits.",
+        action: "Close the critical gaps first, then lock in a recurring review routine to keep documentation consistent over time."
       },
       4: {
-        impact: "Trainings, incidents, corrective actions, and internal reviews are consistently managed, giving strong evidence of a well run service.",
-        action: "Use your data from these processes to show trends and improvements over time, especially in preparation for surveys."
+        impact: "Trainings, incidents, corrective actions, and reviews are consistently managed, giving strong evidence of a well-run service.",
+        action: "Use this data to show trends and improvement over time, especially when preparing for surveys."
       }
     },
     accreditationReadiness: {
       0: {
-        impact: "You are likely to struggle in a survey because documents are scattered, gaps from past reviews may be unresolved, and standards are not clearly mapped.",
-        action: "Gather essential accreditation documents into a central repository and map each one to the relevant standards as a first step."
+        impact: "Documents are scattered, standards are not clearly mapped, or past gaps remain unresolved. This creates a high likelihood of survey findings.",
+        action: "Centralise core accreditation documents and map each one to the relevant standards as your first priority."
       },
       1: {
-        impact: "You can show some pieces of evidence, but retrieval is slow and follow up on previous gaps is unclear, increasing the risk of repeat findings.",
-        action: "Organise your key accreditation documents into a single structure and document progress on closing previous findings."
+        impact: "Documents are scattered, standards are not clearly mapped, or past gaps remain unresolved. This creates a high likelihood of survey findings.",
+        action: "Centralise core accreditation documents and map each one to the relevant standards as your first priority."
       },
       2: {
-        impact: "You can usually respond to survey requests, but the process is stressful and depends on manual effort and a few key people.",
-        action: "Standardise where you store survey documents and run a small 'mock pull' to find and fix bottlenecks in retrieval."
+        impact: "You can show some evidence, but slow retrieval or unclear follow-up increases stress and the risk of repeat findings.",
+        action: "Organise documents into a single structure and document how past gaps were addressed."
       },
       3: {
-        impact: "You are mostly survey ready, though a few gaps in retrieval speed or tracking of earlier findings can still be improved.",
-        action: "Test your readiness by simulating common survey requests and tightening any slow or unclear areas before the next review."
+        impact: "You are mostly survey-ready, but a single unresolved gap or retrieval issue can still trigger findings despite overall preparedness.",
+        action: "Run a mock document pull and tighten any weak points before your next external review."
       },
       4: {
-        impact: "Policies are mapped to standards, documents are easy to retrieve, and past gaps are addressed, giving you a confident survey posture.",
-        action: "Maintain a short accreditation readiness checklist and review it before each external visit to keep this level of performance."
+        impact: "Policies align to standards, documents are easy to retrieve, and past gaps are addressed, giving you a confident survey posture.",
+        action: "Maintain a short readiness checklist and review it before each external visit to preserve this level of performance."
       }
     }
   };

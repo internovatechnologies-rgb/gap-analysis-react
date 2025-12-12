@@ -127,7 +127,7 @@ function TestPageContent() {
       <main className="flex-1 max-w-5xl w-full mx-auto p-4 md:p-12">
         <div className="bg-[#EDF3FF] border border-[#1865FF4D] rounded-lg p-2 md:p-6 mb-8 md:mb-12">
           <h2 className="text-base md:text-lg font-semibold text-gray-800">
-            Core Questions (12–15 items, yes/no or multiple-choice)
+            Core Questions (1–16 items, yes/no or multiple-choice)
           </h2>
         </div>
 
